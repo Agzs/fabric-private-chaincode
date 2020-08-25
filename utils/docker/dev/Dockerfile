@@ -12,7 +12,7 @@ ARG NANOPB_VERSION=0.3.9.2
 ARG FABRIC_REPO=https://github.com/hyperledger/fabric.git
 ARG FABRIC_VERSION=1.4.3
 ARG FPC_REPO_URL=https://github.com/hyperledger-labs/fabric-private-chaincode.git
-ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=master
+ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=concept-release-1.0
 ARG OPENSSL_VERSION=1.1.0j
 ARG SGXSSL_VERSION=v2.4.1
 ARG SGX_MODE=SIM
@@ -44,11 +44,15 @@ RUN wget https://dl.google.com/go/$GO_TAR \
 
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/project
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
 ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
 # Install SGX SSL
 ENV SGX_SSL /opt/intel/sgxssl
 RUN wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
+ && git config --global http.proxy http://172.171.2.17:7890 \
+ && git config --global https.proxy http://172.171.2.17:7890 \
  && git clone  --branch ${SGXSSL_VERSION} https://github.com/intel/intel-sgx-ssl.git \
  && . $SGX_SDK/environment \
  && (cd intel-sgx-ssl/openssl_source; mv /tmp/openssl-${OPENSSL_VERSION}.tar.gz . ) \
@@ -67,11 +71,11 @@ RUN git clone https://github.com/nanopb/nanopb.git $NANOPB_PATH \
  && make
 
 # Go repos we need (and pre-load them here rather than later in make)
-# RUN go get github.com/golang/protobuf/proto \
-#  && go get github.com/pkg/errors \
-#  && go get golang.org/x/tools/cmd/goimports \
-#  && go get golang.org/x/sync/semaphore \
-#  && go get github.com/spf13/viper
+RUN go get github.com/golang/protobuf/proto \
+ && go get github.com/pkg/errors \
+ && go get golang.org/x/tools/cmd/goimports \
+ && go get golang.org/x/sync/semaphore \
+ && go get github.com/spf13/viper
 
 # Get Fabric
 ENV FABRIC_PATH=$GOPATH/src/github.com/hyperledger/fabric
@@ -81,6 +85,7 @@ RUN git clone --branch v$FABRIC_VERSION $FABRIC_REPO $FABRIC_PATH
 # Get FPC
 ENV FPC_PATH=$GOPATH/src/github.com/hyperledger-labs/fabric-private-chaincode
 # We copy context so we can use that to potentially get local .git as repo ...
+
 COPY .git /tmp/cloned-local-fpc-git-repo
 RUN git clone $FPC_REPO_URL $FPC_PATH \
   && cd $FPC_PATH \
