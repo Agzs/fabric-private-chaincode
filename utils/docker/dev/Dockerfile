@@ -53,6 +53,8 @@ RUN wget https://dl.google.com/go/$GO_TAR \
 
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/project
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
 ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
 # Install SGX SSL
@@ -78,7 +80,7 @@ RUN git clone https://github.com/nanopb/nanopb.git $NANOPB_PATH \
  && make
 
 # Go tools we need
-RUN go get golang.org/x/tools/cmd/goimports
+RUN go get -v -x golang.org/x/tools/cmd/goimports
 
 # Get Fabric
 ENV FABRIC_PATH=$GOPATH/src/github.com/hyperledger/fabric
