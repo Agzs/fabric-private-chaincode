@@ -1,0 +1,403 @@
+ethtest@ethtest:docker$ pwd
+/home/ethtest/gopath/src/github.com/hyperledger-labs/fabric-private-chaincode/utils/docker
+************************************************************************************************************************************************************* 15:08:01
+ethtest@ethtest:docker$ sudo make dev
+docker  build  --build-arg FPC_VERSION=cr1.0.1 -t hyperledger/fabric-private-chaincode-base base
+Sending build context to Docker daemon  3.072kB
+Step 1/13 : FROM ubuntu:bionic
+ ---> 6526a1858e5d
+Step 2/13 : RUN apt-get update  && apt-get install -y     wget     curl     git     build-essential     ca-certificates     protobuf-compiler     python-protobuf     libprotobuf-dev     libssl-dev     libcurl4-openssl-dev     libtool     cmake     vim  && apt-get -y -q upgrade  && apt-get clean  && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> a5898cf549fa
+Step 3/13 : ARG SGX_REPO=https://download.01.org/intel-sgx/linux-2.6/ubuntu18.04-server
+ ---> Using cache
+ ---> 1b1031adde8a
+Step 4/13 : ARG SGX_LIB_COMMON=libsgx-enclave-common_2.6.100.51363-bionic1_amd64.deb
+ ---> Using cache
+ ---> ed4b7e38d8c1
+Step 5/13 : ARG SGX_SDK_BIN=sgx_linux_x64_sdk_2.6.100.51363.bin
+ ---> Using cache
+ ---> 406b18857266
+Step 6/13 : RUN mkdir -p /opt/intel  && mkdir -p /etc/init
+ ---> Using cache
+ ---> ad327c3c78a9
+Step 7/13 : WORKDIR /opt/intel
+ ---> Using cache
+ ---> 81306eb59cb2
+Step 8/13 : RUN wget ${SGX_REPO}/${SGX_LIB_COMMON}  && dpkg -i ${SGX_LIB_COMMON}
+ ---> Using cache
+ ---> 1b7729d9c624
+Step 9/13 : RUN wget ${SGX_REPO}/${SGX_SDK_BIN}  && chmod +x ${SGX_SDK_BIN}  && echo "yes" | ./${SGX_SDK_BIN}  && rm ${SGX_SDK_BIN}
+ ---> Using cache
+ ---> 8e2fb38308c5
+Step 10/13 : ENV SGX_SDK=/opt/intel/sgxsdk
+ ---> Using cache
+ ---> b8c4b0eea3cf
+Step 11/13 : ENV PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
+ ---> Using cache
+ ---> 8c9e6b9522db
+Step 12/13 : ENV PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig
+ ---> Using cache
+ ---> 3f44786547a6
+Step 13/13 : ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SGX_SDK/sdk_libs
+ ---> Using cache
+ ---> 06b8b5c955aa
+[Warning] One or more build-args [FPC_VERSION] were not consumed
+Successfully built 06b8b5c955aa
+Successfully tagged hyperledger/fabric-private-chaincode-base:latest
+docker  tag hyperledger/fabric-private-chaincode-base hyperledger/fabric-private-chaincode-base:cr1.0.1
+(cd ../..; \
+         docker  build  --build-arg FPC_VERSION=cr1.0.1 -t hyperledger/fabric-private-chaincode-dev\
+         \
+         -f utils/docker/dev/Dockerfile\
+         --build-arg FPC_REPO_URL=file:///tmp/cloned-local-fpc-git-repo\
+         --build-arg FPC_REPO_BRANCH_TAG_OR_COMMIT=$(git rev-parse HEAD)\
+         --build-arg SGX_MODE=SIM\
+         . )
+Sending build context to Docker daemon  16.75MB
+Step 1/40 : ARG FPC_VERSION=latest
+Step 2/40 : FROM hyperledger/fabric-private-chaincode-base:${FPC_VERSION}
+ ---> 06b8b5c955aa
+Step 3/40 : ARG GO_VERSION=go1.13
+ ---> Using cache
+ ---> 411a9940ec66
+Step 4/40 : ARG GO_TAR=$GO_VERSION.linux-amd64.tar.gz
+ ---> Using cache
+ ---> 38c7517bddd6
+Step 5/40 : ARG NANOPB_VERSION=0.3.9.2
+ ---> Using cache
+ ---> 592076ae80a4
+Step 6/40 : ARG FABRIC_REPO=https://github.com/hyperledger/fabric.git
+ ---> Using cache
+ ---> 29cbe985505f
+Step 7/40 : ARG FABRIC_VERSION=1.4.3
+ ---> Using cache
+ ---> f1d81d182007
+Step 8/40 : ARG FPC_REPO_URL=https://github.com/hyperledger-labs/fabric-private-chaincode.git
+ ---> Using cache
+ ---> d501e7d6328c
+Step 9/40 : ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=concept-release-1.0
+ ---> Using cache
+ ---> f65842342619
+Step 10/40 : ARG OPENSSL_VERSION=1.1.0j
+ ---> Using cache
+ ---> 95cf871b35c8
+Step 11/40 : ARG SGXSSL_VERSION=v2.4.1
+ ---> Using cache
+ ---> 2635afd23aec
+Step 12/40 : ARG SGX_MODE=SIM
+ ---> Using cache
+ ---> 25ea30bd27da
+Step 13/40 : ARG APT_ADD_PKGS=
+ ---> Using cache
+ ---> 4a92362ae58d
+Step 14/40 : ENV NANOPB_VERSION=${NANOPB_VERSION}
+ ---> Using cache
+ ---> 5cfd92892d3a
+Step 15/40 : ENV FABRIC_VERSION=${FABRIC_VERSION}
+ ---> Using cache
+ ---> 51130cea291d
+Step 16/40 : ENV OPENSSL_VERSION=${OPENSSL_VERSION}
+ ---> Using cache
+ ---> 5debe9d71564
+Step 17/40 : ENV SGXSSL_VERSION=${SGXSSL_VERSION}
+ ---> Using cache
+ ---> 02e450468545
+Step 18/40 : ENV SGX_MODE=${SGX_MODE}
+ ---> Using cache
+ ---> fb251d246fa9
+Step 19/40 : WORKDIR /tmp
+ ---> Using cache
+ ---> b21333b0d444
+Step 20/40 : RUN apt-get update  && apt-get install -y     apt-utils     docker.io     clang-format     $APT_ADD_PKGS
+ ---> Using cache
+ ---> d2be26104a8e
+Step 21/40 : RUN wget https://dl.google.com/go/$GO_TAR  && tar -xf $GO_TAR  && mv go /usr/local  && rm $GO_TAR  && mkdir -p /project
+ ---> Using cache
+ ---> 0c95be4e8abd
+Step 22/40 : ENV GOROOT=/usr/local/go
+ ---> Using cache
+ ---> 60c6b3d3b76a
+Step 23/40 : ENV GOPATH=/project
+ ---> Using cache
+ ---> b66b4630d82e
+Step 24/40 : ENV GO111MODULE=on
+ ---> Using cache
+ ---> 76f670ff69d7
+Step 25/40 : ENV GOPROXY=https://goproxy.cn,direct
+ ---> Using cache
+ ---> 19fdfedae2ff
+Step 26/40 : ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+ ---> Using cache
+ ---> ebad8c51abc1
+Step 27/40 : ENV SGX_SSL /opt/intel/sgxssl
+ ---> Using cache
+ ---> 52eca752b1d5
+Step 28/40 : RUN wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz  && git config --global http.proxy http://172.171.2.17:7890  && git config --global https.proxy http://172.171.2.17:7890  && git clone  --branch ${SGXSSL_VERSION} https://github.com/intel/intel-sgx-ssl.git  && . $SGX_SDK/environment  && (cd intel-sgx-ssl/openssl_source; mv /tmp/openssl-${OPENSSL_VERSION}.tar.gz . )  && (cd intel-sgx-ssl/Linux; make SGX_MODE=SIM DESTDIR=$SGX_SSL all test )  && (cd intel-sgx-ssl/Linux; make install )  && rm -rf /tmp/intel-sgx-ssl
+ ---> Using cache
+ ---> f0ff17057b4b
+Step 29/40 : ENV NANOPB_PATH=/usr/local/nanopb/
+ ---> Using cache
+ ---> e16832b92143
+Step 30/40 : RUN git clone https://github.com/nanopb/nanopb.git $NANOPB_PATH  && cd $NANOPB_PATH  && git checkout nanopb-$NANOPB_VERSION  && cd generator/proto  && make
+ ---> Using cache
+ ---> 90d8844dfe49
+Step 31/40 : RUN go get -v -x github.com/golang/protobuf/proto  && go get -v -x github.com/pkg/errors  && go get -v -x golang.org/x/tools/cmd/goimports  && go get -v -x golang.org/x/sync/semaphore  && go get -v -x github.com/spf13/viper
+ ---> Using cache
+ ---> 655c7655554f
+Step 32/40 : ENV GO111MODULE=off
+ ---> Using cache
+ ---> f1dd70e57ac0
+Step 33/40 : ENV FABRIC_PATH=$GOPATH/src/github.com/hyperledger/fabric
+ ---> Using cache
+ ---> 91d50bc8c382
+Step 34/40 : RUN git clone --branch v$FABRIC_VERSION $FABRIC_REPO $FABRIC_PATH
+ ---> Using cache
+ ---> 2b78651e69fb
+Step 35/40 : ENV FPC_PATH=$GOPATH/src/github.com/hyperledger-labs/fabric-private-chaincode
+ ---> Using cache
+ ---> a886bc08dd5d
+Step 36/40 : COPY .git /tmp/cloned-local-fpc-git-repo
+ ---> Using cache
+ ---> cef4224dbbcd
+Step 37/40 : RUN git clone $FPC_REPO_URL $FPC_PATH   && cd $FPC_PATH   && git checkout $FPC_REPO_BRANCH_TAG_OR_COMMIT
+ ---> Using cache
+ ---> 5b22f5cfb56e
+Step 38/40 : RUN cd $FABRIC_PATH  && git config user.email "FPC"  && git am $FPC_PATH/fabric/*patch  && git config --unset user.email  && GO_TAGS=pluginsenabled make peer orderer cryptogen configtxgen
+ ---> Using cache
+ ---> b2493bec9627
+Step 39/40 : RUN apt install -y 	jq 	psmisc 	bc 	docker-compose
+ ---> Using cache
+ ---> 9d058687975e
+Step 40/40 : WORKDIR $FPC_PATH
+ ---> Using cache
+ ---> 295b50761003
+Successfully built 295b50761003
+Successfully tagged hyperledger/fabric-private-chaincode-dev:latest
+docker  tag hyperledger/fabric-private-chaincode-dev hyperledger/fabric-private-chaincode-dev:cr1.0.1
+************************************************************************************************************************************************************* 15:08:08
+ethtest@ethtest:docker$ 
+************************************************************************************************************************************************************* 15:08:09
+ethtest@ethtest:docker$ sudo make run
+docker  build  --build-arg FPC_VERSION=cr1.0.1 -t hyperledger/fabric-private-chaincode-base base
+Sending build context to Docker daemon  3.072kB
+Step 1/13 : FROM ubuntu:bionic
+ ---> 6526a1858e5d
+Step 2/13 : RUN apt-get update  && apt-get install -y     wget     curl     git     build-essential     ca-certificates     protobuf-compiler     python-protobuf     libprotobuf-dev     libssl-dev     libcurl4-openssl-dev     libtool     cmake     vim  && apt-get -y -q upgrade  && apt-get clean  && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> a5898cf549fa
+Step 3/13 : ARG SGX_REPO=https://download.01.org/intel-sgx/linux-2.6/ubuntu18.04-server
+ ---> Using cache
+ ---> 1b1031adde8a
+Step 4/13 : ARG SGX_LIB_COMMON=libsgx-enclave-common_2.6.100.51363-bionic1_amd64.deb
+ ---> Using cache
+ ---> ed4b7e38d8c1
+Step 5/13 : ARG SGX_SDK_BIN=sgx_linux_x64_sdk_2.6.100.51363.bin
+ ---> Using cache
+ ---> 406b18857266
+Step 6/13 : RUN mkdir -p /opt/intel  && mkdir -p /etc/init
+ ---> Using cache
+ ---> ad327c3c78a9
+Step 7/13 : WORKDIR /opt/intel
+ ---> Using cache
+ ---> 81306eb59cb2
+Step 8/13 : RUN wget ${SGX_REPO}/${SGX_LIB_COMMON}  && dpkg -i ${SGX_LIB_COMMON}
+ ---> Using cache
+ ---> 1b7729d9c624
+Step 9/13 : RUN wget ${SGX_REPO}/${SGX_SDK_BIN}  && chmod +x ${SGX_SDK_BIN}  && echo "yes" | ./${SGX_SDK_BIN}  && rm ${SGX_SDK_BIN}
+ ---> Using cache
+ ---> 8e2fb38308c5
+Step 10/13 : ENV SGX_SDK=/opt/intel/sgxsdk
+ ---> Using cache
+ ---> b8c4b0eea3cf
+Step 11/13 : ENV PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
+ ---> Using cache
+ ---> 8c9e6b9522db
+Step 12/13 : ENV PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig
+ ---> Using cache
+ ---> 3f44786547a6
+Step 13/13 : ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SGX_SDK/sdk_libs
+ ---> Using cache
+ ---> 06b8b5c955aa
+[Warning] One or more build-args [FPC_VERSION] were not consumed
+Successfully built 06b8b5c955aa
+Successfully tagged hyperledger/fabric-private-chaincode-base:latest
+docker  tag hyperledger/fabric-private-chaincode-base hyperledger/fabric-private-chaincode-base:cr1.0.1
+(cd ../..; \
+         docker  build  --build-arg FPC_VERSION=cr1.0.1 -t hyperledger/fabric-private-chaincode-dev\
+         \
+         -f utils/docker/dev/Dockerfile\
+         --build-arg FPC_REPO_URL=file:///tmp/cloned-local-fpc-git-repo\
+         --build-arg FPC_REPO_BRANCH_TAG_OR_COMMIT=$(git rev-parse HEAD)\
+         --build-arg SGX_MODE=SIM\
+         . )
+Sending build context to Docker daemon  16.75MB
+Step 1/40 : ARG FPC_VERSION=latest
+Step 2/40 : FROM hyperledger/fabric-private-chaincode-base:${FPC_VERSION}
+ ---> 06b8b5c955aa
+Step 3/40 : ARG GO_VERSION=go1.13
+ ---> Using cache
+ ---> 411a9940ec66
+Step 4/40 : ARG GO_TAR=$GO_VERSION.linux-amd64.tar.gz
+ ---> Using cache
+ ---> 38c7517bddd6
+Step 5/40 : ARG NANOPB_VERSION=0.3.9.2
+ ---> Using cache
+ ---> 592076ae80a4
+Step 6/40 : ARG FABRIC_REPO=https://github.com/hyperledger/fabric.git
+ ---> Using cache
+ ---> 29cbe985505f
+Step 7/40 : ARG FABRIC_VERSION=1.4.3
+ ---> Using cache
+ ---> f1d81d182007
+Step 8/40 : ARG FPC_REPO_URL=https://github.com/hyperledger-labs/fabric-private-chaincode.git
+ ---> Using cache
+ ---> d501e7d6328c
+Step 9/40 : ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=concept-release-1.0
+ ---> Using cache
+ ---> f65842342619
+Step 10/40 : ARG OPENSSL_VERSION=1.1.0j
+ ---> Using cache
+ ---> 95cf871b35c8
+Step 11/40 : ARG SGXSSL_VERSION=v2.4.1
+ ---> Using cache
+ ---> 2635afd23aec
+Step 12/40 : ARG SGX_MODE=SIM
+ ---> Using cache
+ ---> 25ea30bd27da
+Step 13/40 : ARG APT_ADD_PKGS=
+ ---> Using cache
+ ---> 4a92362ae58d
+Step 14/40 : ENV NANOPB_VERSION=${NANOPB_VERSION}
+ ---> Using cache
+ ---> 5cfd92892d3a
+Step 15/40 : ENV FABRIC_VERSION=${FABRIC_VERSION}
+ ---> Using cache
+ ---> 51130cea291d
+Step 16/40 : ENV OPENSSL_VERSION=${OPENSSL_VERSION}
+ ---> Using cache
+ ---> 5debe9d71564
+Step 17/40 : ENV SGXSSL_VERSION=${SGXSSL_VERSION}
+ ---> Using cache
+ ---> 02e450468545
+Step 18/40 : ENV SGX_MODE=${SGX_MODE}
+ ---> Using cache
+ ---> fb251d246fa9
+Step 19/40 : WORKDIR /tmp
+ ---> Using cache
+ ---> b21333b0d444
+Step 20/40 : RUN apt-get update  && apt-get install -y     apt-utils     docker.io     clang-format     $APT_ADD_PKGS
+ ---> Using cache
+ ---> d2be26104a8e
+Step 21/40 : RUN wget https://dl.google.com/go/$GO_TAR  && tar -xf $GO_TAR  && mv go /usr/local  && rm $GO_TAR  && mkdir -p /project
+ ---> Using cache
+ ---> 0c95be4e8abd
+Step 22/40 : ENV GOROOT=/usr/local/go
+ ---> Using cache
+ ---> 60c6b3d3b76a
+Step 23/40 : ENV GOPATH=/project
+ ---> Using cache
+ ---> b66b4630d82e
+Step 24/40 : ENV GO111MODULE=on
+ ---> Using cache
+ ---> 76f670ff69d7
+Step 25/40 : ENV GOPROXY=https://goproxy.cn,direct
+ ---> Using cache
+ ---> 19fdfedae2ff
+Step 26/40 : ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+ ---> Using cache
+ ---> ebad8c51abc1
+Step 27/40 : ENV SGX_SSL /opt/intel/sgxssl
+ ---> Using cache
+ ---> 52eca752b1d5
+Step 28/40 : RUN wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz  && git config --global http.proxy http://172.171.2.17:7890  && git config --global https.proxy http://172.171.2.17:7890  && git clone  --branch ${SGXSSL_VERSION} https://github.com/intel/intel-sgx-ssl.git  && . $SGX_SDK/environment  && (cd intel-sgx-ssl/openssl_source; mv /tmp/openssl-${OPENSSL_VERSION}.tar.gz . )  && (cd intel-sgx-ssl/Linux; make SGX_MODE=SIM DESTDIR=$SGX_SSL all test )  && (cd intel-sgx-ssl/Linux; make install )  && rm -rf /tmp/intel-sgx-ssl
+ ---> Using cache
+ ---> f0ff17057b4b
+Step 29/40 : ENV NANOPB_PATH=/usr/local/nanopb/
+ ---> Using cache
+ ---> e16832b92143
+Step 30/40 : RUN git clone https://github.com/nanopb/nanopb.git $NANOPB_PATH  && cd $NANOPB_PATH  && git checkout nanopb-$NANOPB_VERSION  && cd generator/proto  && make
+ ---> Using cache
+ ---> 90d8844dfe49
+Step 31/40 : RUN go get -v -x github.com/golang/protobuf/proto  && go get -v -x github.com/pkg/errors  && go get -v -x golang.org/x/tools/cmd/goimports  && go get -v -x golang.org/x/sync/semaphore  && go get -v -x github.com/spf13/viper
+ ---> Using cache
+ ---> 655c7655554f
+Step 32/40 : ENV GO111MODULE=off
+ ---> Using cache
+ ---> f1dd70e57ac0
+Step 33/40 : ENV FABRIC_PATH=$GOPATH/src/github.com/hyperledger/fabric
+ ---> Using cache
+ ---> 91d50bc8c382
+Step 34/40 : RUN git clone --branch v$FABRIC_VERSION $FABRIC_REPO $FABRIC_PATH
+ ---> Using cache
+ ---> 2b78651e69fb
+Step 35/40 : ENV FPC_PATH=$GOPATH/src/github.com/hyperledger-labs/fabric-private-chaincode
+ ---> Using cache
+ ---> a886bc08dd5d
+Step 36/40 : COPY .git /tmp/cloned-local-fpc-git-repo
+ ---> Using cache
+ ---> cef4224dbbcd
+Step 37/40 : RUN git clone $FPC_REPO_URL $FPC_PATH   && cd $FPC_PATH   && git checkout $FPC_REPO_BRANCH_TAG_OR_COMMIT
+ ---> Using cache
+ ---> 5b22f5cfb56e
+Step 38/40 : RUN cd $FABRIC_PATH  && git config user.email "FPC"  && git am $FPC_PATH/fabric/*patch  && git config --unset user.email  && GO_TAGS=pluginsenabled make peer orderer cryptogen configtxgen
+ ---> Using cache
+ ---> b2493bec9627
+Step 39/40 : RUN apt install -y 	jq 	psmisc 	bc 	docker-compose
+ ---> Using cache
+ ---> 9d058687975e
+Step 40/40 : WORKDIR $FPC_PATH
+ ---> Using cache
+ ---> 295b50761003
+Successfully built 295b50761003
+Successfully tagged hyperledger/fabric-private-chaincode-dev:latest
+docker  tag hyperledger/fabric-private-chaincode-dev hyperledger/fabric-private-chaincode-dev:cr1.0.1
+# Cleanup existing but non-running (note absence of --force in rm!) old dev containers
+dev_container_id=$(docker ps -a | grep fpc-development-cr1.0.1 | awk '{ print $1 }'); \
+   [ -z  "${dev_container_id}" ] || docker  rm "${dev_container_id}"
+7495fff7dd38
+# Now run a new instance
+docker  run  -v /var/run/docker.sock:/var/run/docker.sock -v "/home/ethtest/gopath/src/github.com/hyperledger-labs/fabric-private-chaincode":/project/src/github.com/hyperledger-labs/fabric-private-chaincode --env DOCKERD_FPC_PATH=/home/ethtest/gopath/src/github.com/hyperledger-labs/fabric-private-chaincode/ --net=host -v "/home/ethtest/gopath/src/github.com/hyperledger-labs/fabric-private-chaincode/config/ias/":/project/src/github.com/hyperledger-labs/fabric-private-chaincode/config/ias/ -v /var/run/aesmd:/var/run/aesmd --device /dev/isgx --name fpc-development-cr1.0.1 -it hyperledger/fabric-private-chaincode-dev:cr1.0.1 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode# ls
+CODEOWNERS          CONTRIBUTING.md  Makefile   build.mk  common  config.mk           demo  ecc          ercc  examples  integration  scripts  tlcc_enclave
+CODE_OF_CONDUCT.md  LICENSE          README.md  cmake     config  config.override.mk  docs  ecc_enclave  eval  fabric    out          tlcc     utils
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode#              
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode# 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode# 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode# cd examples/helloworld/
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# ls
+CMakeLists.txt  Makefile  _build  helloworld_cc.cpp
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# 
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# make 
+make --directory=_build
+make[1]: Entering directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+/usr/bin/cmake -H/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld -B/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build/CMakeFiles /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build/CMakeFiles/progress.marks
+make -f CMakeFiles/Makefile2 all
+make[2]: Entering directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+make -f CMakeFiles/enclave.dir/build.make CMakeFiles/enclave.dir/depend
+make[3]: Entering directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+cd /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build /project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build/CMakeFiles/enclave.dir/DependInfo.cmake --color=
+make[3]: Leaving directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+make -f CMakeFiles/enclave.dir/build.make CMakeFiles/enclave.dir/build
+make[3]: Entering directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+[ 50%] Linking CXX shared library enclave.so
+/usr/bin/cmake -E cmake_link_script CMakeFiles/enclave.dir/link.txt --verbose=1
+/usr/bin/c++ -fPIC  -m64 -O2 -nostdinc -fno-builtin -fvisibility=hidden -fpie -fstack-protector -std=c++11 -nostdinc++  -shared -Wl,-soname,enclave.so -o enclave.so CMakeFiles/enclave.dir/helloworld_cc.cpp.o -m64 -O2 -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L/project/src/github.com/hyperledger-labs/fabric-private-chaincode/ecc_enclave/enclave/../../ecc_enclave/_build/lib -lshim -L/opt/intel/sgxssl/lib64 -Wl,--whole-archive -lsgx_tsgxssl -Wl,--no-whole-archive -lsgx_tsgxssl_crypto -L/opt/intel/sgxsdk/lib64 -Wl,--whole-archive -lsgx_trts_sim -Wl,--no-whole-archive -Wl,--start-group -lsgx_tstdc -lsgx_tcxx -lsgx_tcrypto -lsgx_tservice_sim -Wl,--end-group -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined -Wl,-pie,-eenclave_entry -Wl,--export-dynamic -Wl,--defsym,__ImageBase=0 -Wl,--version-script=/project/src/github.com/hyperledger-labs/fabric-private-chaincode/ecc_enclave/enclave/../../ecc_enclave/enclave/enclave.lds 
+/usr/bin/ld: cannot find -lshim
+collect2: error: ld returned 1 exit status
+CMakeFiles/enclave.dir/build.make:97: recipe for target 'enclave.so' failed
+make[3]: *** [enclave.so] Error 1
+make[3]: Leaving directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+CMakeFiles/Makefile2:70: recipe for target 'CMakeFiles/enclave.dir/all' failed
+make[2]: *** [CMakeFiles/enclave.dir/all] Error 2
+make[2]: Leaving directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+Makefile:86: recipe for target 'all' failed
+make[1]: *** [all] Error 2
+make[1]: Leaving directory '/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld/_build'
+Makefile:19: recipe for target 'build' failed
+make: *** [build] Error 2
+root@ethtest:/project/src/github.com/hyperledger-labs/fabric-private-chaincode/examples/helloworld# 
