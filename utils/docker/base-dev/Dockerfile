@@ -39,6 +39,7 @@ RUN apt-get update -q \
   && DEBIAN_FRONTEND="noninteractive" \
   # above makes sure any install of 'tzdata' or alike (as e.g., pulled in via ubuntu 20.04) does not hang ...
   && apt-get install -y -q \
+    apt-utils \
     # build tools
     build-essential \
     clang-format \
@@ -68,8 +69,9 @@ RUN GO_TAR=go${GO_VERSION}.linux-amd64.tar.gz \
   && mkdir -p /project
 ENV PATH=${GOPATH}/bin:${GOROOT}/bin:${PATH}
 #  Go tools we need
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go get golang.org/x/tools/cmd/goimports
-
 
 # Install SGX SSL
 ENV SGX_SSL /opt/intel/sgxssl

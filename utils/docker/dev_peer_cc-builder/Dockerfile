@@ -64,8 +64,9 @@ ARG GIT_USER_EMAIL=tester@fpc
 
 # make sure we have a valid git user (needed for the git am when patching fabric)
 RUN git config --global user.name "${GIT_USER_NAME}" \
- && git config --global user.email "${GIT_USER_EMAIL}"
-
+ && git config --global user.email "${GIT_USER_EMAIL}" \
+ && git config --global http.proxy http://172.171.2.17:7890 \	
+ && git config --global https.proxy http://172.171.2.17:7890 
 
 # Get Fabric
 ENV FABRIC_PATH=${GOPATH}/${FABRIC_REL_PATH}
