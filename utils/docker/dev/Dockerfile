@@ -31,6 +31,7 @@ WORKDIR /tmp
 # we need docker commands (even though we use docker daemon from "outside")
 RUN apt-get update \
  && apt-get install -y \
+    apt-utils \
     docker.io \
     clang-format \
     $APT_ADD_PKGS
@@ -51,6 +52,8 @@ ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 # Install SGX SSL
 ENV SGX_SSL /opt/intel/sgxssl
 RUN wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
+ && git config --global http.proxy http://172.171.2.17:7890 \
+ && git config --global https.proxy http://172.171.2.17:7890 \
  && git clone  --branch ${SGXSSL_VERSION} https://github.com/intel/intel-sgx-ssl.git \
  && . $SGX_SDK/environment \
  && (cd intel-sgx-ssl/openssl_source; mv /tmp/openssl-${OPENSSL_VERSION}.tar.gz . ) \
@@ -75,9 +78,13 @@ RUN go get -v -x github.com/golang/protobuf/proto \
  && go get -v -x golang.org/x/sync/semaphore \
  && go get -v -x github.com/spf13/viper
 
+ENV GO111MODULE=off
+
 # Get Fabric
 ENV FABRIC_PATH=$GOPATH/src/github.com/hyperledger/fabric
-RUN git clone --branch v$FABRIC_VERSION $FABRIC_REPO $FABRIC_PATH
+RUN git clone $FABRIC_REPO $FABRIC_PATH \
+ && cd $FABRIC_PATH \
+ && git checkout v$FABRIC_VERSION 
 # Note: could add --single-branch to below to speed-up and keep size smaller. But for now for a dev-image better keep complete repo
 
 # Get FPC
@@ -90,7 +97,6 @@ RUN git clone $FPC_REPO_URL $FPC_PATH \
   && git checkout $FPC_REPO_BRANCH_TAG_OR_COMMIT
 # Note: could add --single-branch to below to speed-up and keep size smaller. But for now for a dev-image better keep complete repo
 
-ENV GO111MODULE=off
 
 # Build Fabric (after FPC as we need the FPC patches!)
 # Note: the git config shouldn't really be necessary for a git am but that fails without it.
@@ -109,5 +115,7 @@ RUN apt install -y \
 	psmisc \
 	bc \
 	docker-compose
+
+ENV GO111MODULE=on
 
 WORKDIR $FPC_PATH
