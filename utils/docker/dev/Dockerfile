@@ -12,7 +12,7 @@ ARG NANOPB_VERSION=0.3.9.2
 ARG FABRIC_REPO=https://github.com/hyperledger/fabric.git
 ARG FABRIC_VERSION=1.4.3
 ARG FPC_REPO_URL=https://github.com/hyperledger-labs/fabric-private-chaincode.git
-ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=concept-release-1.0
+ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=master
 ARG OPENSSL_VERSION=1.1.0j
 ARG SGXSSL_VERSION=v2.4.1
 ARG SGX_MODE=SIM
@@ -72,11 +72,11 @@ RUN git clone https://github.com/nanopb/nanopb.git $NANOPB_PATH \
  && make
 
 # Go repos we need (and pre-load them here rather than later in make)
-RUN go get -v -x github.com/golang/protobuf/proto \
- && go get -v -x github.com/pkg/errors \
- && go get -v -x golang.org/x/tools/cmd/goimports \
- && go get -v -x golang.org/x/sync/semaphore \
- && go get -v -x github.com/spf13/viper
+RUN go get github.com/golang/protobuf/proto \
+ && go get github.com/pkg/errors \
+ && go get golang.org/x/tools/cmd/goimports \
+ && go get golang.org/x/sync/semaphore \
+ && go get github.com/spf13/viper
 
 ENV GO111MODULE=off
 
