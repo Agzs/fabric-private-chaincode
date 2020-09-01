@@ -11,8 +11,8 @@ ARG GO_TAR=$GO_VERSION.linux-amd64.tar.gz
 ARG NANOPB_VERSION=0.3.9.2
 ARG FABRIC_REPO=https://github.com/hyperledger/fabric.git
 ARG FABRIC_VERSION=1.4.3
-ARG FPC_REPO_URL=https://github.com/hyperledger-labs/fabric-private-chaincode.git
-ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=master
+ARG FPC_REPO_URL=https://github.com/Agzs/fabric-private-chaincode.git
+ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=concept-release-1.0
 ARG OPENSSL_VERSION=1.1.0j
 ARG SGXSSL_VERSION=v2.4.1
 ARG SGX_MODE=SIM
@@ -52,8 +52,6 @@ ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 # Install SGX SSL
 ENV SGX_SSL /opt/intel/sgxssl
 RUN wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
- && git config --global http.proxy http://172.171.2.17:7890 \
- && git config --global https.proxy http://172.171.2.17:7890 \
  && git clone  --branch ${SGXSSL_VERSION} https://github.com/intel/intel-sgx-ssl.git \
  && . $SGX_SDK/environment \
  && (cd intel-sgx-ssl/openssl_source; mv /tmp/openssl-${OPENSSL_VERSION}.tar.gz . ) \
