@@ -6,6 +6,7 @@ FROM ubuntu:bionic
 
 RUN apt-get update \
  && apt-get install -y \
+    apt-utils \
     wget \
     curl \
     git \
@@ -19,6 +20,7 @@ RUN apt-get update \
     libtool \
     cmake \
     vim \
+    tree \
  && apt-get -y -q upgrade \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*

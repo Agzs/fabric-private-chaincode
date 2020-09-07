@@ -11,8 +11,8 @@ ARG GO_TAR=$GO_VERSION.linux-amd64.tar.gz
 ARG NANOPB_VERSION=0.3.9.2
 ARG FABRIC_REPO=https://github.com/hyperledger/fabric.git
 ARG FABRIC_VERSION=1.4.3
-ARG FPC_REPO_URL=https://github.com/hyperledger-labs/fabric-private-chaincode.git
-ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=master
+ARG FPC_REPO_URL=https://github.com/Agzs/fabric-private-chaincode.git
+ARG FPC_REPO_BRANCH_TAG_OR_COMMIT=concept-release-1.0
 ARG OPENSSL_VERSION=1.1.0j
 ARG SGXSSL_VERSION=v2.4.1
 ARG SGX_MODE=SIM
@@ -44,6 +44,8 @@ RUN wget https://dl.google.com/go/$GO_TAR \
 
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/project
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
 ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
 # Install SGX SSL
@@ -71,11 +73,22 @@ RUN go get github.com/golang/protobuf/proto \
  && go get github.com/pkg/errors \
  && go get golang.org/x/tools/cmd/goimports \
  && go get golang.org/x/sync/semaphore \
- && go get github.com/spf13/viper
+ && go get github.com/spf13/viper \
+ && go get github.com/onsi/ginkgo \
+ && go get github.com/onsi/gomega \
+ && go get github.com/gin-contrib/cors \
+ && go get github.com/gin-gonic/gin \
+ && go get github.com/dustin/go-broadcast
+
+ENV GO111MODULE=off
 
 # Get Fabric
 ENV FABRIC_PATH=$GOPATH/src/github.com/hyperledger/fabric
-RUN git clone --branch v$FABRIC_VERSION $FABRIC_REPO $FABRIC_PATH
+# RUN git clone --branch v$FABRIC_VERSION $FABRIC_REPO $FABRIC_PATH
+RUN git clone $FABRIC_REPO $FABRIC_PATH \
+ && cd $FABRIC_PATH \
+ && git checkout v$FABRIC_VERSION \
+ && cp -r $FABRIC_PATH/vendor/* $GOPATH/src
 # Note: could add --single-branch to below to speed-up and keep size smaller. But for now for a dev-image better keep complete repo
 
 # Get FPC

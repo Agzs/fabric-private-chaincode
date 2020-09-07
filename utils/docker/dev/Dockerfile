@@ -31,7 +31,6 @@ WORKDIR /tmp
 # we need docker commands (even though we use docker daemon from "outside")
 RUN apt-get update \
  && apt-get install -y \
-    apt-utils \
     docker.io \
     clang-format \
     $APT_ADD_PKGS
@@ -74,7 +73,12 @@ RUN go get github.com/golang/protobuf/proto \
  && go get github.com/pkg/errors \
  && go get golang.org/x/tools/cmd/goimports \
  && go get golang.org/x/sync/semaphore \
- && go get github.com/spf13/viper
+ && go get github.com/spf13/viper \
+ && go get github.com/onsi/ginkgo \
+ && go get github.com/onsi/gomega \
+ && go get github.com/gin-contrib/cors \
+ && go get github.com/gin-gonic/gin \
+ && go get github.com/dustin/go-broadcast
 
 ENV GO111MODULE=off
 
@@ -103,7 +107,13 @@ RUN cd $FABRIC_PATH \
  && git config user.email "FPC" \
  && git am $FPC_PATH/fabric/*patch \
  && git config --unset user.email \
- && GO_TAGS=pluginsenabled make peer orderer cryptogen configtxgen
+ && cp -r $FABRIC_PATH/vendor/* $GOPATH/src \
+ && GO_TAGS=pluginsenabled make peer orderer cryptogen configtxgen \
+ && make native
+
+# Build FPC plugins for peer
+RUN cd $FPC_PATH \
+ && make plugins 
 
 # Note: below are differences to peer image. Eventually this should be consolidated via some refactoring
 # but for now we just make sure we have a common prefix so docker caching will reuse above for the second
